@@ -1,21 +1,46 @@
 > Scannig the network for live hosts, enumerating their ports and determining OS and provided services via tools like `nmap` and `hping3` in conjunction with wireshark.
 
-From a logical point of view the order should be
-1. Check for live hosts in the network
-2. Check open ports per host (encounter FW in this step)
-3. Fingerprint the operating system (OS)
-4. Determine services provided behind the ports
+## Some Basics
 
-## Informations to tools
+### TCP loophole
 
-### `nmap` 
+> Or: when is a port open, closed or filtered
+
+The `TCP` standard has a rather strick definition on how a packet should be handled:
+
+| TCP loophole |
+| - |
+| TCP compliant system receives packet without `SYN`, `RST`, `ACK` returns: |
+| `RST` for **closed** port |
+| Response ( `SYNACK` if accepted) if port is **open** |
+| No response if filtered (FW drops packet) |
+
+> Problem nowadays: Firewall and IDS may interfere in the process and alter the behavior so `nmap` returns `open|filtered` as a response and further manual checking is required
+
+### Informations to tools
+
+### nmap
 
 | option | description / recommendation |
 | - | - |
 | `-oG` | stores the output in grepable format |
 | sudo | recommended, as some operations need root access for raw sockets |
 
-### `wireshark`
+| `nmap` script categories |
+| - |
+| Explanation, see [here](https://nmap.org/book/nse-usage.html) |
+| auth, broadcast, brute, default, discovery, dos, exploit, external, fuzzer, intrusive, malware, safe, version, vuln |
+
+```bash
+sudo nmap -sC <targetIPorNetwork>
+sudo nmap --script-updatedb # update script database
+nmap --script-help "ftp*" and discovery # search for ftp related scripts in category discovery
+sudo nmap --script smb-enum-shares <targetIP> -p <targetPort(445)>
+sudo nmap --script auth <targetIP> # execute all scripts in a category
+```
+
+
+### wireshark
 
 Can be used to check the work of `hping3` and `nmap` (or when packets are created manually via `scapy`)
 
@@ -23,6 +48,14 @@ Filters, easy and combinable
 - Protocols: `dns`, `tcp` , `udp` and `icmp` (or other protocols) add to the filter
 - Logical operatiors: filters can be combined with `and` / `or` also with brackets etc.
 
+
+## Approach on scanning
+
+From a logical point of view the order should be
+1. Check for live hosts in the network
+2. Check open ports per host (encounter FW in this step)
+3. Fingerprint the operating system (OS)
+4. Determine services provided behind the ports
 
 ## Initial scan for live hosts in a network
 
@@ -167,3 +200,12 @@ sudo nmap -sV -iL <fileWithHostIPs> -n
 ```
 
 Optional the `-A` option can be added for a more aggressive approach and for enabling the scripts!
+
+
+## Other additional enumerations
+
+Check which protocols are supported:
+
+```bash
+nmap -sO <targetIP>  # Flips BITs in IP protocol field in the packet
+```
