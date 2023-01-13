@@ -19,7 +19,7 @@ The `TCP` standard has a rather strick definition on how a packet should be hand
 
 ### Informations to tools
 
-### nmap
+#### nmap
 
 | option | description / recommendation |
 | - | - |
@@ -40,7 +40,7 @@ sudo nmap --script auth <targetIP> # execute all scripts in a category
 ```
 
 
-### wireshark
+#### wireshark
 
 Can be used to check the work of `hping3` and `nmap` (or when packets are created manually via `scapy`)
 
