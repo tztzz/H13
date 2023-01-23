@@ -79,6 +79,10 @@ fping -q -a -g <targetNetwork>
 sudo hping3 -1 10.0.10.x --rand-dest -I eth0
 ```
 
+- Or more silent approach but only works if in the same IP subnet
+```bash
+sudo netdiscover -i <interface> -r <range>  # range may be 10.10.10.0/24
+```
 
 ## Port scan
 
