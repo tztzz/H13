@@ -230,7 +230,7 @@ proxychains -q impacket-smbexec <domain>/<user>:<rndPW>@172.16.23.101  # pw can 
 0. Prerequisites
 
 - have `ip_forwarding` enabled
-- add `MASQUERADING` to the interface with the link into the victim network
+- add `MASQUERADING` to the interface with the link into the victim network (`MASQUERADING` will change the packets intercepted with your IP as source address)
 
 ```bash
 sudo iptables -t nat -A POSTROUTING -s <victimSubnet>/24 -o <interface> -j MASQUERADE
