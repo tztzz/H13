@@ -4,12 +4,12 @@ Through pivoting it is possible to scan/enumerate/exploit targets in a new subne
 
 ## Enable pivoting through an established meterpreter session
 
-0. Preriquisites
+### 0. Prerequisites
 
 - established meterpreter session on a host
 - Victim host must have connection to other NW or machine
 
-1. Create a route into another network
+### 1. Create a route into another network
 
 ```bash
 use post/multi/manage/autoroute
@@ -26,13 +26,14 @@ Also they can be added 'manually':
 ```bash
 msfconsole
 > route add <networkIP> <subnetMask> <sessionNumber>
+> route add <networkIP>/24 <sessionsNumber>
 ```
 
-2. Using the Pivot within metasploit frameowrk
+### 2. Using the Pivot within metasploit frameowrk
 
 This should be working already. If traffic is to go to the network covered by the defined route, metasploit will handly it automatically.
 
-3. Start the `SOCKS` proxy for outside tools to pivot
+### 3. Start the `SOCKS` proxy for outside tools to pivot
 
 ```bash
 use auxiliary/server/socks_proxy
@@ -52,7 +53,7 @@ sudo nano /etc/proxychains4.conf  # or similar config name
 
 With this config and metasploit running the socks server, we can use `proxychains` in order to use other tools over this tunnel.
 
-4. Use `proxychains` with `nmap`
+### 4. Use `proxychains` with `nmap`
 
 > Remember: `SOCKS` is a service on the upper layers of the OSI model - `ICMP` and other low-level functions will not work with proxychains!
 
