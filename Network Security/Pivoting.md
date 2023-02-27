@@ -59,6 +59,9 @@ With this config and metasploit running the socks server, we can use `proxychain
 ```bash
 # scan ftp port with nmap
 sudo proxychains nmap -Pn -sTV -n -p21 <targetIP>
+
+# scan top 50 (most common) ports with nmap
+sudo proxychains nmap -sT -Pn -n <targetIP> --top-ports 50
 ```
 
 ## Portforwarding
