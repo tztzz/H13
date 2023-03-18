@@ -2,7 +2,20 @@
 
 ## Linux
 
-tbd
+### Copy if no web access (Transfer via simple netcat)
+
+```bash
+# copy via netcat
+nc -l -p 1234 > script.sh # on victim
+nc -w 3 <victimIP> 1234 < script.sh # from attacker
+```
+
+### Mount nfs share
+
+```bash
+sudo mkdir /mnt/nfsshare
+sudo mount -t nfs <targetIP>:/home/<remoteShareName> /mnt/nfsshare -o nolock
+```
 
 ## Windows
 
