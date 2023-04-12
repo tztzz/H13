@@ -53,7 +53,7 @@ net use k: \\<targetIP>\<sharename> # use k or any other free letter (like C:\)
 
 **Linux**
 ```bash
-sudo mount.cifs //<targetIP>/<sharename> /media/K_share/ user=,pass= # anonymous login
+sudo mount.cifs -o ro,guest,vers=1.0 //<targetIP>/<sharename> /media/K_share/ # anonymous login with readonly on version 1.0
 ```
 
 
