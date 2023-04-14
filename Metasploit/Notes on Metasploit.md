@@ -41,3 +41,7 @@ msf> set user admin
 ```
 
 
+## Start a handler
+
+> Used if `msfvenom` payloads are deployed
+
