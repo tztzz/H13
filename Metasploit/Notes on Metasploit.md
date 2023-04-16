@@ -25,7 +25,7 @@ Through `run` scripts can be invoked.
 meterpreter> run post/windows/manage/migrate
 ```
 
-Portforwarding, `<remoteIP>` and the port to your local machine port (through the current session!)
+Portforwarding, `<remoteIP>` and the port to your local machine port (through the current session!) -> check the [[Pivoting]] section!
 
 ```bash
 meterpreter> portfwd add -L 127.0.0.1 -l 3389 -r <remoteIP> -p 3389
@@ -44,4 +44,17 @@ msf> set user admin
 ## Start a handler
 
 > Used if `msfvenom` payloads are deployed
+
+```bash
+msf> use exploit/multi/handler
+...  # set options accordingly
+```
+
+## The loot folder
+
+> Executions of scripts can result in depositing of information in the loot folder
+
+```bash
+cd /home/kali/.msf4/loot
+```
 
