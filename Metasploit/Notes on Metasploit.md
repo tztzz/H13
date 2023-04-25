@@ -1,6 +1,6 @@
 > Short overview / summary of metasploit commands and specifics, when to use what and so on
 
-## Top level
+## MSF - Top level
 
 > Meaning you just started `msfconsole` and haven't entered a session
 
@@ -17,7 +17,7 @@ Grep in msfconsole needs to be stated upfront the command which output you actua
 msf> grep excellent search type:exploit java
 ```
 
-## Inside a session
+## Inside a meterpreter session
 
 Through `run` scripts can be invoked.
 
@@ -48,6 +48,15 @@ msf> set user admin
 ```bash
 msf> use exploit/multi/handler
 ...  # set options accordingly
+```
+
+## Shell to meterpreter
+
+> Upgrade a session of a plain shell to a meterpreter shell
+
+```bash
+msf> use post/multi/manage/shell_to_meterpreter
+msf> set session 1 # sessions to upgrade
 ```
 
 ## The loot folder

