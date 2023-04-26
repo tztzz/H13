@@ -17,6 +17,10 @@ msf> set SESSION 1  # session on bastion host
 msf> set SUBNET 10.10.10.0  # target network
 msf> set NETMASK /16  # if different from /24
 msf> run
+
+# OR
+
+meterpreter> run autoroute -s 10.10.10.0/16 # inside the correct session!
 ```
 
 Routes can be display with the `route` command in the console.
@@ -121,3 +125,26 @@ Traffice is piped over the exploited machine from the target machine to the atta
 > You can address an exploited machine as receiving end of an exploit -> but only if there is already meterpreter running on it and the traffic is forwarded to the attacker
 
 For ease of use we can create a payload with msfvenom pointing to the exploited machine (which forwards the traffic on the specific port to the attacker IP) -> upload (this port must also be forwarded) and execute on the new target to get a connect-back in metasploit.
+
+## Double pivoting
+> Or how to chain proxychains to reach an even deeper network
+
+[SOURCE](https://pentest.blog/explore-hidden-networks-with-double-pivoting/)
+
+1. Create corresponding routes for the networks via the exploited machines -> [[Pivoting#1. Create a route into another network]]
+2. For every route start a `socks_proxy` job in metasploit [[Pivoting#3. Start the `SOCKS` proxy for outside tools to pivot]]
+3. Adjust the configuration so `proxychains` is able to chain the different connections together to pivot into the deep network
+```bash
+# nano /etc/proxychains4.conf
+dynamic_chain # enable
+# strict_chain # disable
+proxy_dns # optional
+tcp_read_time_out 15000 # optional
+tcp_connect_time_out 8000 # optional
+socks5  127.0.0.1 1080 # Pivot 1
+socks5  127.0.0.1 1081 # Pivot 2
+```
+
+Why should it work?
+-> If we utilize Metasploit and add the correct routing table entries for the deep network the metasploit internal socks_proxy will pipe the traffic through the intermediate exploited hosts:
+*This module provides a SOCKS proxy server that uses the builtin Metasploit routing to relay connections.*
