@@ -32,7 +32,7 @@ msf> route add <networkIP> <subnetMask> <sessionNumber>
 msf> route add <networkIP>/24 <sessionsNumber>
 ```
 
-### 2. Using the Pivot within metasploit frameowrk
+### 2. Using the Pivot within metasploit framework
 
 This should be working already. If traffic is to go to the network covered by the defined route, metasploit will handly it automatically.
 
@@ -40,7 +40,7 @@ This should be working already. If traffic is to go to the network covered by th
 
 ```bash
 msf> use auxiliary/server/socks_proxy
-msf> set VERSION 4a  # optionally version 5 works also
+msf> set VERSION 4a  # version 5 works also
 msf> run
 ```
 

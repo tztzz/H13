@@ -6,7 +6,7 @@
 
 > Or: when is a port open, closed or filtered
 
-The `TCP` standard has a rather strick definition on how a packet should be handled:
+The `TCP` standard has a rather strickt definition on how a packet should be handled:
 
 | TCP loophole |
 | - |

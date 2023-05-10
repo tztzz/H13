@@ -93,7 +93,8 @@ iex $downloader.responseText
 
 - [invoke-cradlecrafter](https://github.com/danielbohannon/Invoke-CradleCrafter)
 
-## Obfuscation  
+## Obfuscation
+> Obfuscate your powershell payload (you don't say...)
 
 - [invoke-obfuscation](https://github.com/danielbohannon/Invoke-Obfuscation)  
 
