@@ -20,12 +20,12 @@
 
 1. Check the available services (open ports)
 	1. Vulnerabilities (check version)
-	2. Missconfiguration (check behaviour)
+	2. Misconfiguration (check behaviour)
 2. Exploit
 3. Local enumeration
-	1. Files (`txt`, `xml`, `config`, `account`, `password`)
-	2. Local Services 
-	3. Persistance
+	1. Files (`txt`, `xml`, `config`, `account`, `password`, `swap-file`)
+	2. Local Services (`docker`, `chronjobs` unkown apps)
+	3. Persistance (get passwords, place ssh key, create new user)
 4. Privesc
 5. Lateral Movement
 	1. Pivoting (yay)
