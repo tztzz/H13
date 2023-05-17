@@ -21,3 +21,8 @@
 - dsniff
 - bettercap
 - [crackmapexec](https://github.com/Porchetta-Industries/CrackMapExec) - [wiki](https://wiki.porchetta.industries/)
+- sshuttle
+
+## Tools to download b4
+
+- chisel
